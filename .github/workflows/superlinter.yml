@@ -3,7 +3,7 @@ name: Deploy Flask App
 on:
   push:
     branches:
-      - master  # or main
+      - master  
 
 jobs:
   deploy:
@@ -16,7 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'  # Use 3.13 if supported on remote
+        python-version: '3.11'  
 
     - name: Install dependencies
       run: |
