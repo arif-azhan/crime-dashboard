@@ -1,9 +1,15 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# Python virtual environment
+.venv/
+
 # dependencies
-/node_modules
+crimedashboard/node_modules
 /.pnp
 .pnp.js
+
+# Build artifacts
+crimedashboard/public/
 
 # testing
 /coverage
@@ -21,3 +27,4 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+node_modules
