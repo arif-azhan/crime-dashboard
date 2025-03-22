@@ -4,11 +4,12 @@ import { nanoid } from "nanoid";
 
 function Trends() {
     const [data, setData] = useState({});
-    const [stateFilter, setStateFilter] = useState("");
-    const [selectedTypes, setSelectedTypes] = useState([]);
+    const [stateFilter, setStateFilter] = useState([]);
     const [states, setStates] = useState([]);
     const [types, setTypes] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedTypes, setSelectedTypes] = useState(["All"]);
+
 
 
     useEffect(() => {
@@ -18,7 +19,7 @@ function Trends() {
                 const cleanedStates = [...new Set(states.filter(Boolean))];
                 const cleanedTypes = [...new Set(types.filter(t => t && t !== "All"))];
     
-                setStates(cleanedStates); // No "All States" inserted
+                setStates(cleanedStates);
                 setTypes(cleanedTypes);
             })
             
@@ -27,27 +28,31 @@ function Trends() {
 
     useEffect(() => {
         async function fetchData() {
-            setLoading(true); // 👈 Start loading
+            setLoading(true); // show loading state
             const allData = {};
-    
-            for (let type of selectedTypes) {
-                let url = `http://127.0.0.1:5050/crime-trends?type=${encodeURIComponent(type)}`;
-                if (stateFilter) url += `&state=${encodeURIComponent(stateFilter)}`;
-    
+          
+            if (selectedTypes.length > 0 && stateFilter.length > 0) {
+              for (let state of stateFilter) {
+                let url = `http://127.0.0.1:5050/crime-trends?state=${encodeURIComponent(state)}&type=${encodeURIComponent(selectedTypes[0])}`;
+                
                 const res = await fetch(url);
                 const rawData = await res.json();
-    
+          
                 rawData.forEach(entry => {
-                    const date = new Date(entry.date).toISOString().split("T")[0];
-                    if (!allData[date]) allData[date] = { date };
-                    allData[date][type] = entry.crimes;
+                  const date = new Date(entry.date).toISOString().split("T")[0];
+                  if (!allData[date]) allData[date] = { date };
+                  allData[date][state] = entry.crimes;
                 });
+              }
+          
+              const merged = Object.values(allData).sort((a, b) => new Date(a.date) - new Date(b.date));
+              setData(merged);
+            } else {
+              setData([]);
             }
-    
-            const merged = Object.values(allData).sort((a, b) => new Date(a.date) - new Date(b.date));
-            setData(merged);
-            setLoading(false); // 👈 Done loading
-        }
+          
+            setLoading(false);
+          }
     
         if (selectedTypes.length > 0) {
             fetchData();
@@ -71,38 +76,46 @@ function Trends() {
           <h2 className="text-2xl font-bold mb-6 text-gray-800">Crime Trends Over Time</h2>
       
           {/* Filters */}
-          <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
-            {/* State Dropdown */}
+          <div className="flex flex-col gap-4 mb-8">
+          {/* Crime Type Dropdown */}
             <select
-              className="p-2 border border-gray-300 rounded-md text-sm"
-              value={stateFilter}
-              onChange={(e) => setStateFilter(e.target.value)}
+                className="p-2 border border-gray-300 rounded-md text-sm"
+                value={selectedTypes[0] || ""}
+                onChange={(e) => setSelectedTypes([e.target.value])}
             >
-              <option value="">All States</option>
-              {states.map((state) => (
-                <option key={state} value={state}>{state}</option>
-              ))}
+                <option value="">Select Crime Type</option>
+                <option value="All">All Crime Types</option> 
+                {types.map((type) => (
+                <option key={type} value={type}>{type}</option>
+                ))}
             </select>
-      
-            {/* Crime Type Checkboxes */}
-            <div className="flex flex-wrap gap-3 items-center text-sm">
-              <span className="font-medium mr-2">Select Crime Types:</span>
-              {types.map((type) => (
-                <label key={type} className="flex items-center space-x-1">
-                  <input
+
+            {/* State Checkboxes */}
+            <div className="flex flex-wrap gap-3 items-center text-sm mb-6">
+                <span className="font-medium mr-2">Select States:</span>
+                {states.map((state) => (
+                <label key={state} className="flex items-center space-x-1">
+                    <input
                     type="checkbox"
-                    value={type}
-                    checked={selectedTypes.includes(type)}
-                    onChange={() => handleTypeToggle(type)}
-                  />
-                  <span>{type}</span>
+                    value={state}
+                    checked={stateFilter.includes(state)}
+                    onChange={() =>
+                        setStateFilter((prev) =>
+                        prev.includes(state)
+                            ? prev.filter((s) => s !== state)
+                            : [...prev, state]
+                        )
+                    }
+                    />
+                    <span>{state}</span>
                 </label>
-              ))}
+                ))}
             </div>
-          </div>
+            </div>
+
       
           {/* Chart */}
-          <div className="bg-white border rounded-xl shadow p-4">
+          <div className="bg-white border rounded-xl shadow p-4 mb-6">
             {loading ? (
               <div className="text-center text-gray-500 py-20">Loading chart...</div>
             ) : (
@@ -116,17 +129,18 @@ function Trends() {
                   />
                   <YAxis tick={{ fontSize: 12 }} />
                   <Tooltip />
-                  {selectedTypes.map((type) => (
+                  {stateFilter.map((state) => (
                     <Line
-                      key={type}
-                      type="monotone"
-                      dataKey={type}
-                      name={type}
-                      stroke={"#" + Math.floor(Math.random() * 16777215).toString(16)}
-                      dot={false}
-                      strokeWidth={2}
+                        key={state}
+                        type="monotone"
+                        dataKey={state}
+                        name={state}
+                        stroke={"#" + Math.floor(Math.random() * 16777215).toString(16)}
+                        dot={false}
+                        strokeWidth={2}
                     />
-                  ))}
+                    ))}
+
                 </LineChart>
               </ResponsiveContainer>
             )}
