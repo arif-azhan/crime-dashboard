@@ -28,6 +28,10 @@ jobs:
         echo "${{ secrets.SSH_KEY }}" > key.pem
         chmod 600 key.pem
 
+    - name: Create target directory on EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "mkdir -p /home/${{ secrets.SSH_USER }}/crime-dashboard"
+
     - name: Copy files to EC2
       run: |
         scp -o StrictHostKeyChecking=no -i key.pem -r ./* ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:/home/${{ secrets.SSH_USER }}/crime-dashboard
