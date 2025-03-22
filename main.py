@@ -3,6 +3,7 @@ from flask_cors import CORS
 import pandas as pd
 import boto3
 import json
+import copy
 
 app = Flask(__name__)
 CORS(app)
@@ -13,13 +14,11 @@ S3_FILE = "crime_district_filtered.csv"
 
 # Load Malaysia GeoJSON
 with open("malaysia.geojson", "r") as f:
-    geojson_data = json.load(f)
+    base_geojson = json.load(f)
 
 # Function to load dataset from AWS S3
 def load_data():
-    s3_client = boto3.client(
-        "s3"
-    )       
+    s3_client = boto3.client("s3")       
     obj = s3_client.get_object(Bucket=S3_BUCKET, Key=S3_FILE)
     df = pd.read_csv(obj["Body"])
     
@@ -42,22 +41,21 @@ def crime_heatmap():
         df = df[df["year"] == int(year)]
     if crime_type:
         df = df[df["type"] == crime_type]
-
-    # Aggregate crime count per state
-    crime_summary = df.groupby("state")["crimes"].sum().reset_index()
+    
+    # Create a copy of the base GeoJSON (to prevent modification issues)
+    geojson_data = copy.deepcopy(base_geojson)
 
     # Merge crime data into GeoJSON
     for feature in geojson_data["features"]:
         state_name = feature["properties"]["name"]
         
         # Find crime data for this state
-        crime_entry = crime_summary[crime_summary["state"] == state_name]
-        
+        crime_entry = df[(df["state"] == state_name) & (df["district"] == "All")]
+
         # If state exists in crime data, update GeoJSON
-        if not crime_entry.empty:
-            feature["properties"]["crimes"] = int(crime_entry["crimes"].values[0])
-        else:
-            feature["properties"]["crimes"] = 0  # No data for this state
+        feature["properties"]["crimes"] = (
+            int(crime_entry["crimes"].values[0]) if not crime_entry.empty else 0
+        )
 
     return jsonify(geojson_data)
 
