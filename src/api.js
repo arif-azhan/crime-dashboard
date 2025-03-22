@@ -31,3 +31,8 @@ export const fetchCrimeRateChange = async () => {
     const response = await axios.get(`${API_BASE_URL}/crime-rate-change`);
     return response.data;
 };
+
+export async function fetchFilters() {
+    const res = await fetch("http://127.0.0.1:5050/api/filters");
+    return res.json();
+}
