@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)
 
 # AWS S3 Configuration
-S3_BUCKET = "paynet-pohan"
+S3_BUCKET = "mybucketpaynet"
 S3_FILE = "crime_district_filtered.csv"
 
 # Load Malaysia GeoJSON
@@ -63,8 +63,27 @@ def crime_heatmap():
 @app.route("/crime-trends", methods=["GET"])
 def crime_trends():
     df = load_data()
+
+    # Get filters from query parameters
+    state = request.args.get("state")
+    crime_type = request.args.get("type")
+
+    # Apply filters
+    if state:
+        df = df[df["state"] == state]
+    if crime_type:
+        df = df[df["type"] == crime_type]
+
+    # Group by date for trends
     trends = df.groupby("date")["crimes"].sum().reset_index()
     return jsonify(trends.to_dict(orient="records"))
+
+@app.route("/api/filters", methods=["GET"])
+def get_filters():
+    df = load_data()
+    states = df["state"].dropna().unique().tolist()
+    types = df["type"].dropna().unique().tolist()
+    return jsonify({"states": states, "types": types})
 
 # API 3: Most Affected States
 @app.route("/most-states", methods=["GET"])
@@ -88,4 +107,4 @@ def crime_rate_change():
     return jsonify(trends.to_dict(orient="records"))
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5050, debug=True)

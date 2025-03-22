@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:5000"; // Change this when deploying
+const API_BASE_URL = "http://localhost:5050"; // Change this when deploying
 
 export const fetchCrimeHeatmap = async (queryParams = "") => {
     try {
