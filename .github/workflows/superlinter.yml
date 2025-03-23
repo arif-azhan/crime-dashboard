@@ -28,9 +28,9 @@ jobs:
         echo "${{ secrets.SSH_KEY }}" > key.pem
         chmod 600 key.pem
 
-    - name: Debug SSH_USER
+    - name: 🔍 Check SSH_USER value
       run: |
-        echo "💡 SSH_USER = ${{ secrets.SSH_USER }}"
+        echo "Value of SSH_USER: ${{ secrets.SSH_USER }}"
 
     - name: Create target directory on EC2
       run: |
