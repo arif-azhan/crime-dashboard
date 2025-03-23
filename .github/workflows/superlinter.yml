@@ -34,9 +34,10 @@ jobs:
           mkdir -p /home/ubuntu/crime-dashboard
         EOF
 
+
     - name: Copy files to EC2
       run: |
-        scp -o StrictHostKeyChecking=no -i key.pem -r . ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard
+        scp -o StrictHostKeyChecking=no -i key.pem -r ./* ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard
 
     - name: Restart Flask App
       run: |
