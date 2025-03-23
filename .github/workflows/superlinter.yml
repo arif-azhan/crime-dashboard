@@ -30,7 +30,7 @@ jobs:
 
     - name: 🖥️ Check if Parent Directory Exists and Create Project Folder on EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@3.106.114.66 << 'EOF'
           # Check if /home/ubuntu exists
           echo "📁 Checking if /home/ubuntu exists..."
           if [ ! -d "/home/ubuntu" ]; then
@@ -52,11 +52,11 @@ jobs:
           --exclude '.github' \
           --exclude 'key.pem' \
           ./ \
-          ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard
+          ubuntu@3.106.114.66:/home/ubuntu/crime-dashboard/
 
     - name: 🚀 Restart Flask App
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@3.106.114.66 << 'EOF'
           cd /home/ubuntu/crime-dashboard
           if [ ! -d ".venv" ]; then
             python3 -m venv .venv
