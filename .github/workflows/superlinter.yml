@@ -10,25 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: ✅ Checkout code
+    - name:  Checkout code
       uses: actions/checkout@v3
 
-    - name: 🐍 Set up Python
+    - name:  Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
 
-    - name: 📦 Install dependencies (validate build)
+    - name:  Install dependencies (validate build)
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: 🔐 Save private key
+    - name:  Save private key
       run: |
         echo "${{ secrets.SSH_KEY }}" > key.pem
         chmod 600 key.pem
 
-    - name: 🖥️ Check if Parent Directory Exists and Create Project Folder on EC2
+    - name:  Check if Parent Directory Exists and Create Project Folder on EC2
       run: |
         ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@3.106.114.66 << 'EOF'
           # Check if /home/ubuntu exists
@@ -44,7 +44,7 @@ jobs:
           echo "✅ Folder created and permissions set!"
         EOF
 
-    - name: 📦 Copy project files to EC2
+    - name:  Copy project files to EC2
       run: |
         rsync -avz \
           -e "ssh -o StrictHostKeyChecking=no -i key.pem" \
@@ -54,7 +54,7 @@ jobs:
           ./ \
           ubuntu@3.106.114.66:/home/ubuntu/crime-dashboard/
 
-    - name: 🚀 Restart Flask App
+    - name:  Restart Flask App
       run: |
         ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@3.106.114.66 << 'EOF'
           cd /home/ubuntu/crime-dashboard
