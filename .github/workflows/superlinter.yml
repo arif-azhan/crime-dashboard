@@ -3,7 +3,7 @@ name: Deploy Flask App
 on:
   push:
     branches:
-      - master
+      - master  # or 'main'
 
 jobs:
   deploy:
@@ -18,36 +18,34 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install dependencies (locally, to validate build)
+    - name: Install dependencies (validate build)
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Save private key to file
+    - name: Save private key
       run: |
         echo "${{ secrets.SSH_KEY }}" > key.pem
         chmod 600 key.pem
 
     - name: Create target directory on EC2
       run: |
-        ssh -tt -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << EOF
-          mkdir -p /home/ubuntu/crime-dashboard
-          exit
-        EOF
-        
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} \
+        "mkdir -p /home/ubuntu/crime-dashboard"
+
     - name: Copy project files to EC2
       run: |
         scp -o StrictHostKeyChecking=no -i key.pem -r . ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard
 
-    - name: Restart Flask App on EC2
+    - name: Restart Flask App
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} "
-          cd /home/ubuntu/crime-dashboard &&
-          if [ ! -d '.venv' ]; then
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
+          cd /home/ubuntu/crime-dashboard
+          if [ ! -d ".venv" ]; then
             python3 -m venv .venv
-          fi &&
-          source .venv/bin/activate &&
-          pip install -r requirements.txt &&
-          pkill -f 'flask run' || true &&
+          fi
+          source .venv/bin/activate
+          pip install -r requirements.txt
+          pkill -f "flask run" || true
           nohup flask run --host=0.0.0.0 --port=5000 > app.log 2>&1 &
-        "
+        EOF
