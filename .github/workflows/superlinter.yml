@@ -34,6 +34,10 @@ jobs:
           mkdir -p /home/ubuntu/crime-dashboard
         EOF
 
+    - name: Debug IP
+      run: echo "Server IP is ${{ secrets.SERVER_IP }}"
+
+
     - name: Copy project files to EC2 using rsync
       run: |
         rsync -avz -e "ssh -o StrictHostKeyChecking=no -i key.pem" \
