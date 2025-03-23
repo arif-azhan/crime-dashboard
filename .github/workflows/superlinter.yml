@@ -34,7 +34,7 @@ jobs:
 
     - name: Create target directory on EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} mkdir -p /home/${{ secrets.SSH_USER }}/crime-dashboard
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} "mkdir -p /home/ubuntu/crime-dashboard"
 
     - name: Copy project files to EC2
       run: |
