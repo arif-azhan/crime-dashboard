@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)
 
 # AWS S3 Configuration
-S3_BUCKET = "mybucketpaynet"
+S3_BUCKET = "paynet-pohan"
 S3_FILE = "crime_district_filtered.csv"
 
 # Load Malaysia GeoJSON

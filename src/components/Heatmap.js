@@ -5,12 +5,12 @@ import { fetchCrimeHeatmap } from "../api";
 import Legend from "./Legend";
 
 function getCrimeColor(crimeCount) {
-    return crimeCount > 500 ? "#800026" :
-           crimeCount > 250 ? "#BD0026" :
-           crimeCount > 100 ? "#E31A1C" :
-           crimeCount > 50 ? "#FC4E2A" :
-           crimeCount > 10 ? "#FD8D3C" :
-                            "#FFEDA0";
+    return crimeCount > 500 ? "#FF0000" :  // Red (High)
+           crimeCount > 250 ? "#FF4500" :  // Orange-Red
+           crimeCount > 100 ? "#FF8C00" :  // Dark Orange
+           crimeCount > 50  ? "#FFD700" :  // Yellow (Medium)
+           crimeCount > 10  ? "#1E90FF" :  // Dodger Blue (Low)
+                              "#0000FF";   // Blue (Lowest)
 }
 
 function Heatmap() {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend, LabelList } from "recharts";
 
 function CrimeRateChange() {
     const [data, setData] = useState([]);
@@ -36,6 +36,8 @@ function CrimeRateChange() {
         if (selectedState) fetchCrimeRateData();
     }, [selectedState]);
 
+    const getLabelPosition = (value) => (value >= 0 ? "top" : "bottom");
+
     return (
         <div className="p-6 max-w-5xl mx-auto">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Crime Rate % Change (YoY)</h2>
@@ -62,14 +64,55 @@ function CrimeRateChange() {
                         <BarChart data={data}>
                             <XAxis dataKey="year" />
                             <YAxis unit="%" />
-                            <Tooltip formatter={(value) => `${value}%`} />
+                            <Tooltip 
+                                formatter={(value) => [`Crime Rate % Change (YoY): ${value}%`]} 
+                            />
+                            
+                            {/* Custom Legend with Black Text & Colored Squares */}
+                            <Legend 
+                                verticalAlign="top" 
+                                align="right" 
+                                wrapperStyle={{ paddingBottom: 30 }} 
+                                content={() => (
+                                    <div style={{ display: "flex", justifyContent: "flex-end", gap: "15px" }}>
+                                        <div style={{ display: "flex", alignItems: "center" }}>
+                                            <div style={{
+                                                width: "12px",
+                                                height: "12px",
+                                                backgroundColor: "#4ade80",
+                                                marginRight: "5px"
+                                            }} />
+                                            <span style={{ color: "#333" }}>Rise</span>
+                                        </div>
+                                        <div style={{ display: "flex", alignItems: "center" }}>
+                                            <div style={{
+                                                width: "12px",
+                                                height: "12px",
+                                                backgroundColor: "#f87171",
+                                                marginRight: "5px"
+                                            }} />
+                                            <span style={{ color: "#333" }}>Fall</span>
+                                        </div>
+                                    </div>
+                                )}
+                            />
+
                             <Bar dataKey="percent_change">
                                 {data.map((entry, index) => (
                                     <Cell
                                         key={`cell-${index}`}
-                                        fill={entry.percent_change >= 0 ? "#4ade80" : "#f87171"} // green/red
+                                        fill={entry.percent_change >= 0 ? "#4ade80" : "#f87171"} // Green for rise, Red for fall
                                     />
                                 ))}
+                                {/* Labels positioned outside the bars */}
+                                <LabelList 
+                                    dataKey="percent_change" 
+                                    position="top" 
+                                    formatter={(value) => `${value}%`} 
+                                    fill="#333" 
+                                    fontSize={18} 
+                                    offset={5} // Move label further outside
+                                />
                             </Bar>
                         </BarChart>
                     </ResponsiveContainer>

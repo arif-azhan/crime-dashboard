@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { nanoid } from "nanoid";
 
 function Trends() {
     const [data, setData] = useState({});
@@ -61,15 +60,7 @@ function Trends() {
             setLoading(false); // 👈 Stop loading even when no types are selected
         }
     }, [stateFilter, selectedTypes]);
-    
 
-    const handleTypeToggle = (type) => {
-        setSelectedTypes(prev =>
-            prev.includes(type)
-                ? prev.filter(t => t !== type)
-                : [...prev, type]
-        );
-    };
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
@@ -84,7 +75,6 @@ function Trends() {
                 value={selectedTypes[0] || ""}
                 onChange={(e) => setSelectedTypes([e.target.value])}
             >
-                <option value="">Select Crime Type</option>
                 <option value="All">All Crime Types</option> 
                 {types.map((type) => (
                 <option key={type} value={type}>{type}</option>

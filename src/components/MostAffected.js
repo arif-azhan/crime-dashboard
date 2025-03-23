@@ -3,18 +3,18 @@ import { fetchMostAffectedDistricts } from "../api";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 const crimeColors = {
-    "Break In": "#FF5733",
-    "Causing Injury": "#33FF57",
-    "Murder": "#5733FF",
-    "Rape": "#FF33A1",
-    "Robbery Gang Armed": "#33A1FF",
-    "Robbery Gang Unarmed": "#FFA133",
-    "Robbery Solo Armed": "#A133FF",
-    "Robbery Solo Unarmed": "#33FFA1",
-    "Theft Other": "#A1FF33",
-    "Theft Vehicle Lorry": "#FF3333",
-    "Theft Vehicle Motorcar": "#3333FF",
-    "Theft Vehicle Motorcycle": "#FFAA33"
+    "Break In": "#e6194B",
+    "Causing Injury": "#3cb44b",
+    "Murder": "#808000",
+    "Rape": "#4363d8",
+    "Robbery Gang Armed": "#f58231",
+    "Robbery Gang Unarmed": "#911eb4",
+    "Robbery Solo Armed": "#023A00",
+    "Robbery Solo Unarmed": "#f032e6",
+    "Theft Other": "#469990",
+    "Theft Vehicle Lorry": "#9A6324",
+    "Theft Vehicle Motorcar": "#800000",
+    "Theft Vehicle Motorcycle": "#000075"
 };
 
 function MostAffected() {
@@ -66,7 +66,13 @@ function MostAffected() {
                     <BarChart layout="vertical" data={data} margin={{ left: 50, right: 30 }}>
                         <XAxis type="number" />
                         <YAxis dataKey="district" type="category" width={150} />
-                        <Tooltip />
+                        <Tooltip 
+                            contentStyle={{
+                                backgroundColor: "#f0f0f0",
+                                borderRadius: "5px",
+                                padding: "10px"
+                            }} 
+                        />
 
                         {/* Stack each crime type */}
                         {Object.keys(crimeColors).map((key) =>
