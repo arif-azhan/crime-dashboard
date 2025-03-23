@@ -29,10 +29,8 @@ export const fetchCrimeRateChange = async () => {
     return response.data;
 };
 
-<<<<<<< HEAD
-export const fetchCrimeType = async (filters = {}) => {
+export const fetchCrimeType = async (queryParams = "") => {
     try {
-        const queryParams = new URLSearchParams(filters).toString();
         const response = await axios.get(`${API_BASE_URL}/crime-distribution?${queryParams}`);
         return response.data;
     } catch (error) {
@@ -40,9 +38,3 @@ export const fetchCrimeType = async (filters = {}) => {
         return null;
     }
 };
-=======
-export async function fetchFilters() {
-    const res = await fetch("http://127.0.0.1:5050/api/filters");
-    return res.json();
-}
->>>>>>> 7a40dd02301d0bac530f3a5c3980339358d4f401
