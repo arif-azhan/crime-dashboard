@@ -1,4 +1,4 @@
-name: Deploy Flask App
+name: Deploy Flask + React App to EC2
 
 on:
   push:
@@ -23,34 +23,33 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name:  Save private key
+    - name:  Save SSH private key
       run: |
         echo "${{ secrets.SSH_KEY }}" > key.pem
         chmod 600 key.pem
 
-    - name:  Check if Parent Directory Exists and Create Project Folder on EC2
+    - name:  Ensure project folder exists on EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@3.106.114.66 << 'EOF'
-          echo "📁 Checking if /home/ubuntu exists..."
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
+          echo " Checking /home/ubuntu..."
           if [ ! -d "/home/ubuntu" ]; then
             sudo mkdir -p /home/ubuntu
           fi
-          echo "📁 Creating /home/ubuntu/crime-dashboard..."
+          echo " Creating project folder..."
           sudo mkdir -p /home/ubuntu/crime-dashboard
           sudo chown -R ubuntu:ubuntu /home/ubuntu/crime-dashboard
-          echo "✅ Folder created and permissions set!"
+          echo " Folder ready!"
         EOF
 
-    # 🔄 ROLLBACK Backup Step
-    - name: 🔄 Backup existing deployment
+    - name:  Backup existing deployment (Rollback point)
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@3.106.114.66 << 'EOF'
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
           if [ -d "/home/ubuntu/crime-dashboard" ]; then
             cp -r /home/ubuntu/crime-dashboard /home/ubuntu/crime-dashboard-backup-$TIMESTAMP
-            echo "✅ Backup created: crime-dashboard-backup-$TIMESTAMP"
+            echo " Backup created at: crime-dashboard-backup-$TIMESTAMP"
           else
-            echo "⚠️ No existing project folder to backup."
+            echo "⚠ No existing deployment to back up."
           fi
         EOF
 
@@ -62,18 +61,28 @@ jobs:
           --exclude '.github' \
           --exclude 'key.pem' \
           ./ \
-          ubuntu@3.106.114.66:/home/ubuntu/crime-dashboard/
+          ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard/
 
-    - name:  Restart Flask App
+    - name:  Restart Flask backend
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@3.106.114.66 << 'EOF'
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
           cd /home/ubuntu/crime-dashboard
           if [ ! -d ".venv" ]; then
             python3 -m venv .venv
           fi
           source .venv/bin/activate
+          pip install --upgrade pip
           pip install -r requirements.txt
           pkill -f "flask run" || true
           nohup flask run --host=0.0.0.0 --port=5000 > app.log 2>&1 &
-          echo "✅ Flask app restarted!"
+          echo "✅ Flask backend restarted on port 5000!"
+        EOF
+
+    - name:  Serve React frontend
+      run: |
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
+          cd /home/ubuntu/crime-dashboard
+          pkill -f "npx serve" || true
+          nohup npx serve -s . -l 3000 > frontend.log 2>&1 &
+          echo "✅ Frontend served on port 3000!"
         EOF
