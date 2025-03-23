@@ -28,20 +28,11 @@ jobs:
         echo "${{ secrets.SSH_KEY }}" > key.pem
         chmod 600 key.pem
 
-    - name: Create directory on EC2 (debug)
-      run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
-          pwd
-          whoami
-          mkdir -p /home/ubuntu/crime-dashboard
-        EOF
-
-
-
     - name: Create target directory on EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} \
-        "mkdir -p /home/ubuntu/crime-dashboard"
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
+          mkdir -p /home/ubuntu/crime-dashboard
+        EOF
 
     - name: Copy project files to EC2
       run: |
