@@ -36,7 +36,13 @@ jobs:
 
     - name: Debug IP
       run: echo "Server IP is ${{ secrets.SERVER_IP }}"
-
+    - name: Check if SERVER_IP is empty
+      run: |
+        if [ -z "${{ secrets.SERVER_IP }}" ]; then
+          echo "❌ SERVER_IP is empty or not set!"
+        else
+          echo "✅ SERVER_IP is set to: ${{ secrets.SERVER_IP }}"
+        fi
 
     - name: Copy project files to EC2 using rsync
       run: |
