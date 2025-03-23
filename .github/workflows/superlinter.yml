@@ -3,14 +3,14 @@ name: Deploy Flask App
 on:
   push:
     branches:
-      - master  # Change to 'main' if your default branch is 'main'
+      - master
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Set up Python
@@ -18,48 +18,34 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install dependencies locally (build validation)
+    - name: Install dependencies (validate build)
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Save SSH key to file
+    - name: Save private key
       run: |
         echo "${{ secrets.SSH_KEY }}" > key.pem
         chmod 600 key.pem
 
-    - name: Create project directory on EC2
+    - name: 🔧 Create project folder on EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
-          mkdir -p /home/ubuntu/crime-dashboard
-        EOF
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} "
+          echo '✅ Logged in as:' \$(whoami)
+          echo '📁 Current path:' \$(pwd)
+          mkdir -p /home/ubuntu/crime-dashboard &&
+          echo '✅ Folder created!'
+        "
 
-    - name: Debug IP
-      run: echo "Server IP is ${{ secrets.SERVER_IP }}"
-    - name: Check if SERVER_IP is empty
-      run: |
-        if [ -z "${{ secrets.SERVER_IP }}" ]; then
-          echo "❌ SERVER_IP is empty or not set!"
-        else
-          echo "✅ SERVER_IP is set to: ${{ secrets.SERVER_IP }}"
-        fi
-
-
-    - name: Debug directory existence
-      run: |
-        ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP }} \
-        "ls -lah /home/ubuntu/crime-dashboard"
-
-
-    - name: Copy project files to EC2 using rsync
+    - name: 📦 Copy project files to EC2
       run: |
         rsync -avz -e "ssh -o StrictHostKeyChecking=no -i key.pem" \
           --exclude '.git' \
           --exclude '.github' \
           --exclude 'key.pem' \
-          ./ ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard
+          ./ ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard/
 
-    - name: Restart Flask App on EC2
+    - name: 🚀 Restart Flask App
       run: |
         ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
           cd /home/ubuntu/crime-dashboard
