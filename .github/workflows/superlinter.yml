@@ -46,7 +46,6 @@ jobs:
 
     - name: 📦 Copy project files to EC2
       run: |
-        # Run rsync with sudo and ensure the correct permissions
         rsync -avz \
           -e "ssh -o StrictHostKeyChecking=no -i key.pem" \
           --exclude '.git' \
