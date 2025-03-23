@@ -39,17 +39,14 @@ jobs:
 
     - name: 📦 Copy project files to EC2
       run: |
-        if [ -z "${{ secrets.SERVER_IP }}" ]; then
-          echo "❌ SERVER_IP is not set!"
-          exit 1
-        fi
-    
-        echo "Copying to ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard"
-        rsync -avz -e "ssh -o StrictHostKeyChecking=no -i key.pem" \
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} "mkdir -p /home/ubuntu/crime-dashboard"
+        rsync -avz \
+          -e "ssh -o StrictHostKeyChecking=no -i key.pem" \
           --exclude '.git' \
           --exclude '.github' \
           --exclude 'key.pem' \
-          ./ ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard
+          ./ \
+          ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard
 
     - name: 🚀 Restart Flask App
       run: |
