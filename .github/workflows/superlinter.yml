@@ -53,6 +53,7 @@ jobs:
           fi
         EOF
 
+
     - name:  Copy project files to EC2
       run: |
         rsync -avz \
@@ -61,7 +62,7 @@ jobs:
           --exclude '.github' \
           --exclude 'key.pem' \
           ./ \
-          ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard/
+          ubuntu@3.106.114.66:/home/ubuntu/crime-dashboard/
 
     - name:  Restart Flask backend
       run: |
