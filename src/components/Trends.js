@@ -76,7 +76,8 @@ function Trends() {
           <h2 className="text-2xl font-bold mb-6 text-gray-800">Crime Trends Over Time</h2>
       
           {/* Filters */}
-          <div className="flex flex-col gap-4 mb-8">
+          <div className="mb-8 pb-4 border-b border-gray-200">
+            <div className="flex flex-col space-y-4">
           {/* Crime Type Dropdown */}
             <select
                 className="p-2 border border-gray-300 rounded-md text-sm"
@@ -110,12 +111,13 @@ function Trends() {
                     <span>{state}</span>
                 </label>
                 ))}
+                </div>
             </div>
             </div>
 
       
           {/* Chart */}
-          <div className="bg-white border rounded-xl shadow p-4 mb-6">
+          <div className="bg-white border rounded-xl shadow p-4 mt-4">
             {loading ? (
               <div className="text-center text-gray-500 py-20">Loading chart...</div>
             ) : (

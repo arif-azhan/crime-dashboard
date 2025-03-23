@@ -115,9 +115,23 @@ def crime_types():
 # API 5: Crime rate % change (YoY)
 @app.route("/crime-rate-change", methods=["GET"])
 def crime_rate_change():
+    state = request.args.get("state", default=None)
+    
     df = load_data()
-    trends = df.groupby("date")["crimes"].sum().reset_index()
-    return jsonify(trends.to_dict(orient="records"))
+    df = df[df["district"] == "All"]  # aggregate by state
+
+    if state:
+        df = df[df["state"] == state]
+
+    yearly = df.groupby("year")["crimes"].sum().reset_index()
+    yearly["percent_change"] = yearly["crimes"].pct_change() * 100
+    yearly["percent_change"] = yearly["percent_change"].round(2)
+
+    # ✅ Remove the first year (NaN percent_change)
+    filtered = yearly[yearly["percent_change"].notna()]
+
+    return jsonify(filtered.to_dict(orient="records"))
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5050, debug=True)
