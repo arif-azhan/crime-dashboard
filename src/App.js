@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import Heatmap from "./components/Heatmap";
 import Trends from "./components/Trends";
 import MostAffected from "./components/MostAffected";
-import Breakdown from "./components/Breakdown";
 import CrimeRateChange from "./components/CrimeRateChange";
+import CrimeDistribution from "./components/CrimeDistribution";
 
 function App() {
   const [selectedView, setSelectedView] = useState("Heatmap");
@@ -12,7 +12,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <nav className="flex space-x-4 bg-blue-600 text-white p-3 rounded-lg">
-        {["Heatmap", "Trends", "Most Affected", "Breakdown", "Crime Rate Change"].map(view => (
+        {["Heatmap", "Trends", "Most Affected", "Crime Distribution", "Crime Rate Change"].map(view => (
           <button key={view} className="px-4 py-2" onClick={() => setSelectedView(view)}>
             {view}
           </button>
@@ -23,8 +23,9 @@ function App() {
         {selectedView === "Heatmap" && <Heatmap />}
         {selectedView === "Trends" && <Trends />}
         {selectedView === "Most Affected" && <MostAffected />}
-        {selectedView === "Breakdown" && <Breakdown />}
+        {selectedView === "Crime Distribution" && <CrimeDistribution />}
         {selectedView === "Crime Rate Change" && <CrimeRateChange />}
+        
       </div>
     </div>
   );

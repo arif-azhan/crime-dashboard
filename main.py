@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)
 
 # AWS S3 Configuration
-S3_BUCKET = "mybucketpaynet"
+S3_BUCKET = "bucket-sarven"
 S3_FILE = "crime_district_filtered.csv"
 
 # Load Malaysia GeoJSON
@@ -92,12 +92,25 @@ def crime_states():
     trends = df.groupby("date")["crimes"].sum().reset_index()
     return jsonify(trends.to_dict(orient="records"))
 
-# API 4: Crime Breakdown by Type
+# API 4: Crime Breakdown by Type (With Filters)
 @app.route("/crime-distribution", methods=["GET"])
 def crime_types():
     df = load_data()
-    trends = df.groupby("date")["crimes"].sum().reset_index()
-    return jsonify(trends.to_dict(orient="records"))
+
+    # Get filters
+    year = request.args.get("year")
+    state = request.args.get("state")
+
+    # Apply filters
+    if year:
+        df = df[df["year"] == int(year)]
+    if state:
+        df = df[df["state"] == state]
+
+    # Group by crime type
+    crime_distribution = df.groupby("type")["crimes"].sum().reset_index()
+    
+    return jsonify(crime_distribution.to_dict(orient="records"))
 
 # API 5: Crime rate % change (YoY)
 @app.route("/crime-rate-change", methods=["GET"])

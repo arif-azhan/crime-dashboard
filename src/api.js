@@ -22,12 +22,20 @@ export const fetchMostAffectedStates = async () => {
     return response.data;
 };
 
-export const fetchCrimeType = async () => {
-    const response = await axios.get(`${API_BASE_URL}/crime-distribution`);
-    return response.data;
-};
+
 
 export const fetchCrimeRateChange = async () => {
     const response = await axios.get(`${API_BASE_URL}/crime-rate-change`);
     return response.data;
+};
+
+export const fetchCrimeType = async (filters = {}) => {
+    try {
+        const queryParams = new URLSearchParams(filters).toString();
+        const response = await axios.get(`${API_BASE_URL}/crime-distribution?${queryParams}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching crime distribution:", error);
+        return null;
+    }
 };
