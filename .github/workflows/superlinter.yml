@@ -3,7 +3,7 @@ name: Deploy Flask App
 on:
   push:
     branches:
-      - master  # Change to 'main' if your default branch is named main
+      - master
 
 jobs:
   deploy:
@@ -16,7 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'  
+        python-version: '3.11'
 
     - name: Install dependencies (locally, to validate build)
       run: |
@@ -28,22 +28,18 @@ jobs:
         echo "${{ secrets.SSH_KEY }}" > key.pem
         chmod 600 key.pem
 
-    - name: 🔍 Check SSH_USER value
-      run: |
-        echo "Value of SSH_USER: ${{ secrets.SSH_USER }}"
-
     - name: Create target directory on EC2
       run: |
         ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} "mkdir -p /home/ubuntu/crime-dashboard"
 
     - name: Copy project files to EC2
       run: |
-        scp -o StrictHostKeyChecking=no -i key.pem -r . ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:/home/${{ secrets.SSH_USER }}/crime-dashboard
+        scp -o StrictHostKeyChecking=no -i key.pem -r . ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard
 
     - name: Restart Flask App on EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "
-          cd /home/${{ secrets.SSH_USER }}/crime-dashboard &&
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} "
+          cd /home/ubuntu/crime-dashboard &&
           if [ ! -d '.venv' ]; then
             python3 -m venv .venv
           fi &&
