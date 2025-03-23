@@ -3,7 +3,7 @@ name: Deploy Flask App
 on:
   push:
     branches:
-      - master  
+      - master
 
 jobs:
   deploy:
@@ -16,7 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'  
+        python-version: '3.11'
 
     - name: Install dependencies
       run: |
@@ -30,14 +30,11 @@ jobs:
 
     - name: Create target directory on EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-          mkdir -p /home/ubuntu/crime-dashboard
-        EOF
-
+        ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "mkdir -p /home/${{ secrets.SSH_USER }}/crime-dashboard"
 
     - name: Copy files to EC2
       run: |
-        scp -o StrictHostKeyChecking=no -i key.pem -r ./* ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard
+        scp -o StrictHostKeyChecking=no -i key.pem -r ./* ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:/home/${{ secrets.SSH_USER }}/crime-dashboard
 
     - name: Restart Flask App
       run: |
