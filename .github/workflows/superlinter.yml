@@ -46,7 +46,6 @@ jobs:
           --exclude 'key.pem' \
           ./ ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard
 
-
     - name: 🚀 Restart Flask App
       run: |
         ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
