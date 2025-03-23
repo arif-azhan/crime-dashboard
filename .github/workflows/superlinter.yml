@@ -38,9 +38,13 @@ jobs:
         ls -lah
 
 
-    - name: Copy project files to EC2
+    - name: Copy project files to EC2 
       run: |
-        scp -o StrictHostKeyChecking=no -i key.pem -r * ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard
+        rsync -avz -e "ssh -o StrictHostKeyChecking=no -i key.pem" \
+          --exclude '.git' \
+          --exclude '.github' \
+          --exclude 'key.pem' \
+          ./ ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard
 
     - name: Restart Flask App
       run: |
