@@ -30,12 +30,13 @@ jobs:
 
     - name: 🔧 Create project folder on EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} "
-          echo '✅ Logged in as:' \$(whoami)
-          echo '📁 Current path:' \$(pwd)
-          mkdir -p /home/ubuntu/crime-dashboard &&
-          echo '✅ Folder created!'
-        "
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
+          echo "✅ Logged in as: $(whoami)"
+          echo "📁 Current path: $(pwd)"
+          mkdir -p /home/ubuntu/crime-dashboard
+          echo "✅ Folder created!"
+        EOF
+
 
     - name: 📦 Copy project files to EC2
       run: |
