@@ -31,17 +31,27 @@ jobs:
     - name:  Check if Parent Directory Exists and Create Project Folder on EC2
       run: |
         ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@3.106.114.66 << 'EOF'
-          # Check if /home/ubuntu exists
           echo "📁 Checking if /home/ubuntu exists..."
           if [ ! -d "/home/ubuntu" ]; then
-            echo "❌ /home/ubuntu does not exist. Creating the directory..."
             sudo mkdir -p /home/ubuntu
           fi
-          # Create the project directory with correct permissions
           echo "📁 Creating /home/ubuntu/crime-dashboard..."
           sudo mkdir -p /home/ubuntu/crime-dashboard
           sudo chown -R ubuntu:ubuntu /home/ubuntu/crime-dashboard
           echo "✅ Folder created and permissions set!"
+        EOF
+
+    # 🔄 ROLLBACK Backup Step
+    - name: 🔄 Backup existing deployment
+      run: |
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@3.106.114.66 << 'EOF'
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          if [ -d "/home/ubuntu/crime-dashboard" ]; then
+            cp -r /home/ubuntu/crime-dashboard /home/ubuntu/crime-dashboard-backup-$TIMESTAMP
+            echo "✅ Backup created: crime-dashboard-backup-$TIMESTAMP"
+          else
+            echo "⚠️ No existing project folder to backup."
+          fi
         EOF
 
     - name:  Copy project files to EC2
