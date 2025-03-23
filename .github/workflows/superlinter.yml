@@ -76,7 +76,7 @@ jobs:
           pip install -r requirements.txt
           pkill -f "flask run" || true
           nohup flask run --host=0.0.0.0 --port=5000 > app.log 2>&1 &
-          echo "✅ Flask backend restarted on port 5000!"
+          echo "Flask backend restarted on port 5000"
         EOF
 
     - name:  Serve React frontend
@@ -85,5 +85,5 @@ jobs:
           cd /home/ubuntu/crime-dashboard
           pkill -f "npx serve" || true
           nohup npx serve -s . -l 3000 > frontend.log 2>&1 &
-          echo "✅ Frontend served on port 3000!"
+          echo "Frontend served on port 3000"
         EOF
