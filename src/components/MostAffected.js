@@ -53,7 +53,7 @@ function MostAffected() {
                 </select>
 
                 <select className="p-2 border rounded-md" value={state} onChange={(e) => setState(e.target.value)}>
-                    {["Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan", "Pahang", "Penang", "Perak", "Perlis",
+                    {["Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan", "Pahang", "Pulau Pinang", "Perak", "Perlis",
                       "Sabah", "Sarawak", "Selangor", "Terengganu", "W.P. Kuala Lumpur"].map((st) => (
                         <option key={st} value={st}>{st}</option>
                     ))}
