@@ -28,18 +28,24 @@ jobs:
         echo "${{ secrets.SSH_KEY }}" > key.pem
         chmod 600 key.pem
 
-    - name: 🖥️ Create project folder on EC2
+    - name: 🖥️ Check if Parent Directory Exists and Create Project Folder on EC2
       run: |
         ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
-          echo "✅ Logged in as: $(whoami)"
-          echo "📁 Current path: $(pwd)"
-          mkdir -p /home/ubuntu/crime-dashboard
+          # Check if /home/ubuntu exists
+          echo "📁 Checking if /home/ubuntu exists..."
+          if [ ! -d "/home/ubuntu" ]; then
+            echo "❌ /home/ubuntu does not exist. Creating the directory..."
+            sudo mkdir -p /home/ubuntu
+          fi
+          # Create the project directory
+          echo "📁 Creating /home/ubuntu/crime-dashboard..."
+          sudo mkdir -p /home/ubuntu/crime-dashboard
           echo "✅ Folder created!"
         EOF
 
     - name: 📦 Copy project files to EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} "mkdir -p /home/ubuntu/crime-dashboard"
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} "sudo mkdir -p /home/ubuntu/crime-dashboard"
         rsync -avz \
           -e "ssh -o StrictHostKeyChecking=no -i key.pem" \
           --exclude '.git' \
