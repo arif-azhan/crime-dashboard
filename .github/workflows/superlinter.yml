@@ -30,16 +30,18 @@ jobs:
 
     - name: Create target directory on EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "mkdir -p ~/crime-dashboard"
+        ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          mkdir -p /home/ubuntu/crime-dashboard
+        EOF
 
     - name: Copy files to EC2
       run: |
-        scp -o StrictHostKeyChecking=no -i key.pem -r ./* ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/crime-dashboard
+        scp -o StrictHostKeyChecking=no -i key.pem -r ./* ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard
 
     - name: Restart Flask App
       run: |
         ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-          cd ~/crime-dashboard
+          cd /home/ubuntu/crime-dashboard
           if [ ! -d ".venv" ]; then
             python3 -m venv .venv
           fi
