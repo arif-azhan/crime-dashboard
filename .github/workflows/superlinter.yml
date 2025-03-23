@@ -37,15 +37,16 @@ jobs:
             echo "❌ /home/ubuntu does not exist. Creating the directory..."
             sudo mkdir -p /home/ubuntu
           fi
-          # Create the project directory
+          # Create the project directory with correct permissions
           echo "📁 Creating /home/ubuntu/crime-dashboard..."
           sudo mkdir -p /home/ubuntu/crime-dashboard
-          echo "✅ Folder created!"
+          sudo chown -R ubuntu:ubuntu /home/ubuntu/crime-dashboard
+          echo "✅ Folder created and permissions set!"
         EOF
 
     - name: 📦 Copy project files to EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} "sudo mkdir -p /home/ubuntu/crime-dashboard"
+        # Run rsync with sudo and ensure the correct permissions
         rsync -avz \
           -e "ssh -o StrictHostKeyChecking=no -i key.pem" \
           --exclude '.git' \
