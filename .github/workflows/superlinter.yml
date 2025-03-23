@@ -3,32 +3,32 @@ name: Deploy Flask App
 on:
   push:
     branches:
-      - master
+      - master  # or 'main'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: ✅ Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Python
+    - name: 🐍 Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
 
-    - name: Install dependencies (validate build)
+    - name: 📦 Install dependencies (validate build)
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Save private key
+    - name: 🔐 Save private key
       run: |
         echo "${{ secrets.SSH_KEY }}" > key.pem
         chmod 600 key.pem
 
-    - name: 🔧 Create project folder on EC2
+    - name: 🖥️ Create project folder on EC2
       run: |
         ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
           echo "✅ Logged in as: $(whoami)"
@@ -37,14 +37,14 @@ jobs:
           echo "✅ Folder created!"
         EOF
 
-
-    - name: 📦 Copy project files to EC2
+    - name: 🗂️ Copy project files to EC2
       run: |
-        rsync -avz -e "ssh -o StrictHostKeyChecking=no -i key.pem" \
-          --exclude '.git' \
-          --exclude '.github' \
-          --exclude 'key.pem' \
-          ./ ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard/
+        echo "Copying to ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard"
+        rsync -avz -e "ssh -o StrictHostKeyChecking=no -i key.pem" ./ \
+          --exclude='.git' \
+          --exclude='.github' \
+          --exclude='key.pem' \
+          ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard
 
     - name: 🚀 Restart Flask App
       run: |
@@ -57,4 +57,5 @@ jobs:
           pip install -r requirements.txt
           pkill -f "flask run" || true
           nohup flask run --host=0.0.0.0 --port=5000 > app.log 2>&1 &
+          echo "✅ Flask app restarted!"
         EOF
