@@ -30,8 +30,14 @@ jobs:
 
     - name: Create target directory on EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "mkdir -p /home/${{ secrets.SSH_USER }}/crime-dashboard"
-
+        ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          mkdir -p ~/crime-dashboard
+          cd ~/crime-dashboard
+          source .venv/bin/activate || python3 -m venv .venv && source .venv/bin/activate
+          pip install -r requirements.txt
+          pkill -f "flask run" || true
+          nohup flask run --host=0.0.0.0 --port=5000 &
+        EOF
     - name: Copy files to EC2
       run: |
         scp -o StrictHostKeyChecking=no -i key.pem -r ./* ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:/home/${{ secrets.SSH_USER }}/crime-dashboard
