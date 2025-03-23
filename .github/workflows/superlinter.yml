@@ -44,6 +44,13 @@ jobs:
           echo "✅ SERVER_IP is set to: ${{ secrets.SERVER_IP }}"
         fi
 
+
+    - name: Debug directory existence
+      run: |
+        ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP }} \
+        "ls -lah /home/ubuntu/crime-dashboard"
+
+
     - name: Copy project files to EC2 using rsync
       run: |
         rsync -avz -e "ssh -o StrictHostKeyChecking=no -i key.pem" \
