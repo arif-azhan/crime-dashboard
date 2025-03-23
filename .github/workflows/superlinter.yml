@@ -30,8 +30,11 @@ jobs:
 
     - name: Create directory on EC2 (debug)
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} \
-        "pwd && whoami && mkdir -p /home/ubuntu/crime-dashboard"
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
+          pwd
+          whoami
+          mkdir -p /home/ubuntu/crime-dashboard
+        EOF
 
 
 
