@@ -17,16 +17,14 @@ export const fetchCrimeTrends = async () => {
     return response.data;
 };
 
-export const fetchMostAffectedStates = async () => {
-    const response = await axios.get(`${API_BASE_URL}/most-states`);
-    return response.data;
-};
-
-
-
-export const fetchCrimeRateChange = async () => {
-    const response = await axios.get(`${API_BASE_URL}/crime-rate-change`);
-    return response.data;
+export const fetchMostAffectedDistricts = async (queryParams = "") => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/most-districts?${queryParams}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching most affected districts:", error);
+        return null;
+    }
 };
 
 export const fetchCrimeType = async (queryParams = "") => {
@@ -38,3 +36,13 @@ export const fetchCrimeType = async (queryParams = "") => {
         return null;
     }
 };
+
+export const fetchCrimeRateChange = async () => {
+    const response = await axios.get(`${API_BASE_URL}/crime-rate-change`);
+    return response.data;
+};
+
+export async function fetchFilters() {
+    const res = await fetch("http://127.0.0.1:5050/api/filters");
+    return res.json();
+}

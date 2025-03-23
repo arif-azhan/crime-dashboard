@@ -1,25 +1,84 @@
-import React, { useEffect, useState } from "react";
-import { fetchMostAffectedStates } from "../api";
+import React, { useState, useEffect } from "react";
+import { fetchMostAffectedDistricts } from "../api";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+
+const crimeColors = {
+    "Break In": "#FF5733",
+    "Causing Injury": "#33FF57",
+    "Murder": "#5733FF",
+    "Rape": "#FF33A1",
+    "Robbery Gang Armed": "#33A1FF",
+    "Robbery Gang Unarmed": "#FFA133",
+    "Robbery Solo Armed": "#A133FF",
+    "Robbery Solo Unarmed": "#33FFA1",
+    "Theft Other": "#A1FF33",
+    "Theft Vehicle Lorry": "#FF3333",
+    "Theft Vehicle Motorcar": "#3333FF",
+    "Theft Vehicle Motorcycle": "#FFAA33"
+};
 
 function MostAffected() {
     const [data, setData] = useState([]);
+    const [year, setYear] = useState("2016");
+    const [state, setState] = useState("Johor");
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        fetchMostAffectedStates().then(setData);
-    }, []);
+        const fetchData = async () => {
+            setLoading(true);
+            const queryParams = new URLSearchParams({ year, state }).toString();
+            console.log("Fetching data with query:", queryParams); // Debug log
+
+            const newData = await fetchMostAffectedDistricts(queryParams);
+            console.log("Received data:", newData); // Debug log
+            
+            if (newData) {
+                setData(newData);
+            }
+            setLoading(false);
+        };
+        fetchData();
+    }, [year, state]);
 
     return (
-        <div>
-            <h2 className="text-xl font-bold">Most Affected States</h2>
-            <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={data}>
-                    <XAxis dataKey="state" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="crimes" fill="#82ca9d" />
-                </BarChart>
-            </ResponsiveContainer>
+        <div className="relative">
+            <h2 className="text-xl font-bold mb-4">Most Affected Districts in {state}</h2>
+
+            {/* Filter Controls */}
+            <div className="flex space-x-4 mb-4">
+                <select className="p-2 border rounded-md" value={year} onChange={(e) => setYear(e.target.value)}>
+                    {[2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023].map((yr) => (
+                        <option key={yr} value={yr}>{yr}</option>
+                    ))}
+                </select>
+
+                <select className="p-2 border rounded-md" value={state} onChange={(e) => setState(e.target.value)}>
+                    {["Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan", "Pahang", "Penang", "Perak", "Perlis",
+                      "Sabah", "Sarawak", "Selangor", "Terengganu", "W.P. Kuala Lumpur"].map((st) => (
+                        <option key={st} value={st}>{st}</option>
+                    ))}
+                </select>
+            </div>
+
+            {/* Chart Display */}
+            {loading ? <p>Loading...</p> : data.length > 0 ? (
+                <ResponsiveContainer width="100%" height={400}>
+                    <BarChart layout="vertical" data={data} margin={{ left: 50, right: 30 }}>
+                        <XAxis type="number" />
+                        <YAxis dataKey="district" type="category" width={150} />
+                        <Tooltip />
+
+                        {/* Stack each crime type */}
+                        {Object.keys(crimeColors).map((key) =>
+                            data.some(d => d[key] > 0) ? (
+                                <Bar key={key} dataKey={key} stackId="a" fill={crimeColors[key]} />
+                            ) : null
+                        )}
+                    </BarChart>
+                </ResponsiveContainer>
+            ) : (
+                <p>No data available for this selection.</p>
+            )}
         </div>
     );
 }

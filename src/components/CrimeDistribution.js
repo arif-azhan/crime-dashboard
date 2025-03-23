@@ -8,8 +8,8 @@ function CrimeDistribution() {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);  // Loading state
     const [error, setError] = useState(""); // Error state
-    const [year, setYear] = useState(""); // Year filter state
-    const [state, setState] = useState(""); // State filter state
+    const [year, setYear] = useState("2016"); // Year filter state
+    const [state, setState] = useState("Selangor"); // State filter state
 
     // Fetch crime data with optional year and state filter
     const fetchCrimeData = () => {
@@ -65,7 +65,6 @@ function CrimeDistribution() {
                     value={year}
                     onChange={(e) => setYear(e.target.value)} // Set year filter
                 >
-                    <option value="">Select Year</option>
                     <option value="2016">2016</option>
                     <option value="2017">2017</option>
                     <option value="2018">2018</option>
@@ -82,7 +81,6 @@ function CrimeDistribution() {
                     value={state}
                     onChange={(e) => setState(e.target.value)} // Set state filter
                 >
-                    <option value="">Select State</option>
                     <option value="Selangor">Selangor</option>
                     <option value="W.P. Kuala Lumpur">Kuala Lumpur</option>
                     <option value="Pulau Pinang">Penang</option>

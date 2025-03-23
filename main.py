@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)
 
 # AWS S3 Configuration
-S3_BUCKET = "bucket-sarven"
+S3_BUCKET = "mybucketpaynet"
 S3_FILE = "crime_district_filtered.csv"
 
 # Load Malaysia GeoJSON
@@ -85,12 +85,31 @@ def get_filters():
     types = df["type"].dropna().unique().tolist()
     return jsonify({"states": states, "types": types})
 
-# API 3: Most Affected States
-@app.route("/most-states", methods=["GET"])
-def crime_states():
+# API 3: Most Affected Districts
+@app.route("/most-districts", methods=["GET"])
+def crime_districts():
     df = load_data()
-    trends = df.groupby("date")["crimes"].sum().reset_index()
-    return jsonify(trends.to_dict(orient="records"))
+    
+    # Get filters
+    year = request.args.get("year")
+    state = request.args.get("state")
+    
+    # Apply filters
+    df = df[(df["year"] == int(year)) & (df["state"] == state)]
+    df = df[df["district"] != "All"]
+    df = df[df["type"] != "All"]
+    
+    # Pivot data so that crime types become separate columns, filling NaN with 0
+    df_pivot = df.pivot_table(index="district", columns="type", values="crimes", aggfunc="sum").fillna(0)
+
+    # Sort by total crimes (sum of all types)
+    df_pivot["Total"] = df_pivot.sum(axis=1)
+    df_pivot = df_pivot.sort_values(by="Total", ascending=False).drop(columns=["Total"])
+
+    # Convert to dictionary format
+    result = df_pivot.reset_index().to_dict(orient="records")
+
+    return jsonify(result)
 
 # API 4: Crime Breakdown by Type (With Filters)
 @app.route("/crime-distribution", methods=["GET"])
@@ -127,7 +146,7 @@ def crime_rate_change():
     yearly["percent_change"] = yearly["crimes"].pct_change() * 100
     yearly["percent_change"] = yearly["percent_change"].round(2)
 
-    # ✅ Remove the first year (NaN percent_change)
+    # Remove the first year (NaN percent_change)
     filtered = yearly[yearly["percent_change"].notna()]
 
     return jsonify(filtered.to_dict(orient="records"))
