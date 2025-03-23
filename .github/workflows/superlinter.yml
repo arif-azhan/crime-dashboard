@@ -37,14 +37,16 @@ jobs:
           echo "✅ Folder created!"
         EOF
 
-    - name: 🗂️ Copy project files to EC2
+    - name: 📦 Copy project files to EC2
       run: |
         echo "Copying to ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard"
-        rsync -avz -e "ssh -o StrictHostKeyChecking=no -i key.pem" ./ \
+        rsync -avz \
           --exclude='.git' \
           --exclude='.github' \
           --exclude='key.pem' \
-          ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard
+          -e "ssh -o StrictHostKeyChecking=no -i key.pem" \
+          ./ ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/crime-dashboard
+
 
     - name: 🚀 Restart Flask App
       run: |
