@@ -33,6 +33,9 @@ jobs:
         ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
           mkdir -p /home/ubuntu/crime-dashboard
         EOF
+    - name: List files before copy
+      run: |
+        ls -lah
 
 
     - name: Copy project files to EC2
